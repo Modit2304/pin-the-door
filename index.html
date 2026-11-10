@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Modit Joshi · Delhivery case study: two delivery problems, the fix for each, and what it returns.">
+</head>
+<body style="margin:0">
+<title>Pin the Door · Delhivery</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: one story scroll. Each problem opens with a numbered chapter, then Today|After rows side by side, then the app screens on their own */
+:root {
+  --paper: #F6F5F2; --surface: #FFFFFF; --ink: #1B1B1B; --ink-2: #3E3D3A; --muted: #66645F; --line: #E2E0DA; --line-2: #CFCCC4;
+  --band: #1B1B1B; --band-2: #2A2A2A; --band-3: #3A3A3A; --on-band: #FFFFFF; --on-band-2: #C9C9C9; --on-band-3: #A8A8A8;
+  --red: #C8382C; --red-deep: #8E2820; --red-text: #B0322A; --red-on-band: #F07A6E;
+  --red-tint: #FBE7E4; --red-tint-line: #F1C7C1; --red-tint-text: #6B2A23;
+  --green: #6A9A4A; --green-text: #3F6B27; --green-on-band: #9CCB7E; --green-tint: #E6F0DE; --green-tint-line: #C8DDB8; --green-tint-text: #2E5019;
+  --amber-tint: #FFF6D6; --amber-line: #D9BB55; --amber-text: #5C4A0E; --amber-on-band: #F5D97A;
+  --blue: #2F6FD6; --blue-on-band: #6EA0F5;
+  --map: #E9EEE3; --road: #FFFFFF;
+  --app-bg: #F4F4F4; --app-card: #FFFFFF; --app-line: #E6E6E6; --app-red: #D7261E; --app-ink: #1B1B1B; --app-muted: #707070;
+  --chip: #1B1B1B; --on-chip: #FFFFFF;
+  --font: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #121212; --surface: #1A1A1A; --ink: #EDEBE6; --ink-2: #C9C6BF; --muted: #A09D96; --line: #2E2D2B; --line-2: #45433F;
+  --band: #0A0A0A; --band-2: #1F1F1F; --band-3: #333333;
+  --red-text: #F07A6E; --red-tint: #33201D; --red-tint-line: #5A2E28; --red-tint-text: #FFD2CC;
+  --green-text: #9CCB7E; --green-tint: #1C2817; --green-tint-line: #34502A; --green-tint-text: #CFE6BF;
+  --amber-tint: #2E2710; --amber-line: #7A6420; --amber-text: #F5D97A;
+  --blue: #6EA0F5; --map: #263022; --road: #3A4436;
+  --app-bg: #161616; --app-card: #222222; --app-line: #333333; --app-red: #F0574F; --app-ink: #EDEBE6; --app-muted: #A0A0A0;
+  --chip: #EDEBE6; --on-chip: #1B1B1B; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --paper: #121212; --surface: #1A1A1A; --ink: #EDEBE6; --ink-2: #C9C6BF; --muted: #A09D96; --line: #2E2D2B; --line-2: #45433F;
+  --band: #0A0A0A; --band-2: #1F1F1F; --band-3: #333333;
+  --red-text: #F07A6E; --red-tint: #33201D; --red-tint-line: #5A2E28; --red-tint-text: #FFD2CC;
+  --green-text: #9CCB7E; --green-tint: #1C2817; --green-tint-line: #34502A; --green-tint-text: #CFE6BF;
+  --amber-tint: #2E2710; --amber-line: #7A6420; --amber-text: #F5D97A;
+  --blue: #6EA0F5; --map: #263022; --road: #3A4436;
+  --app-bg: #161616; --app-card: #222222; --app-line: #333333; --app-red: #F0574F; --app-ink: #EDEBE6; --app-muted: #A0A0A0;
+  --chip: #EDEBE6; --on-chip: #1B1B1B; color-scheme: dark;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--band); }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+p { margin: 0; }
+button { font: inherit; cursor: pointer; }
+a { color: var(--red-text); }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+section, header { scroll-margin-top: 60px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.pad { padding-block: 96px; }
+.stack { display: flex; flex-direction: column; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.h2 { font-size: clamp(28px, 3.4vw, 42px); line-height: 1.12; font-weight: 800; }
+.h3 { font-size: 22px; line-height: 1.25; font-weight: 800; }
+.lead { font-size: 18px; line-height: 1.6; color: var(--ink-2); max-width: 680px; }
+.band { background: var(--band); color: var(--on-band); }
+.band .eyebrow { color: var(--red-on-band); }
+.band .lead { color: var(--on-band-2); }
+.light { background: var(--surface); }
+.hint { font-size: 14px; color: var(--muted); }
+
+/* scroll reveal: only hidden once the script has run */
+.js .rv { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.js .rv.in { opacity: 1; transform: none; }
+.js .cmp-row.rv { transform: none; opacity: 1; }
+.js .cmp-row.rv > * { opacity: 0; transition: opacity .5s ease, transform .5s ease; }
+.js .cmp-row.rv .c-t { transform: translateX(-18px); }
+.js .cmp-row.rv .c-a { transform: translateX(18px); transition-delay: .25s; }
+.js .cmp-row.rv .c-arrow { transform: scaleX(0); transition-delay: .12s; }
+.js .cmp-row.rv.in > * { opacity: 1; transform: none; }
+
+/* nav + reading progress */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--band); border-bottom: 1px solid var(--band-3); }
+.nav .wrap { display: flex; align-items: center; gap: 20px; padding-block: 8px; }
+.nav .brand { color: var(--on-band); font-weight: 700; font-size: 15px; white-space: nowrap; }
+.nav .links { display: flex; gap: 4px; align-items: center; font-size: 14px; overflow-x: auto; scrollbar-width: none; margin-left: auto; min-width: 0; }
+.nav .links::-webkit-scrollbar { display: none; }
+.nav .links a { color: var(--on-band-3); text-decoration: none; padding: 9px 12px; border-radius: 99px; white-space: nowrap; transition: background .25s, color .25s; }
+.nav .links a:hover { color: var(--on-band); }
+.nav .links a.active { color: #1B1B1B; background: #FFFFFF; font-weight: 700; }
+.nav .links a.cta { color: #FFFFFF; background: var(--red); font-weight: 700; margin-left: 6px; }
+.nav .links a.cta.active { box-shadow: 0 0 0 2px #FFFFFF; }
+.progress { position: absolute; left: 0; bottom: -1px; height: 3px; width: 100%; background: var(--red); transform-origin: left; transform: scaleX(0); }
+
+/* hero */
+.hero { padding-block: 88px 96px; display: flex; flex-wrap: wrap; gap: 40px 56px; align-items: center; }
+.hero-copy { flex: 999 1 520px; min-width: 0; gap: 24px; }
+.hero h1 { font-size: clamp(34px, 4.8vw, 58px); line-height: 1.06; font-weight: 800; letter-spacing: -0.025em; }
+.hero-side { flex: 1 1 340px; min-width: 0; gap: 16px; }
+.hero-art { width: 100%; height: auto; display: block; }
+.route { fill: none; stroke-width: 2.5; stroke-dasharray: 6 7; animation: dash 1.6s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -26; } }
+.pulse { animation: pulse 2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
+.scope { display: flex; align-items: flex-start; gap: 12px; max-width: 640px; background: var(--band-2); border: 1px solid var(--band-3); border-left: 4px solid var(--red-on-band); border-radius: 12px; padding: 14px 16px; font-size: 15px; line-height: 1.5; color: var(--on-band-2); }
+.scope b { color: var(--on-band); }
+.scope-k { flex-shrink: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; color: var(--red-on-band); background: rgba(240,122,110,.12); padding: 4px 8px; border-radius: 6px; margin-top: 1px; }
+.cost { background: var(--band-2); border-radius: 16px; padding: 22px 24px; gap: 6px; }
+.cost .big { font-size: 38px; line-height: 1; font-weight: 800; color: var(--red-on-band); letter-spacing: -0.02em; }
+.cost .label { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--on-band-3); }
+.cost p { font-size: 14px; color: var(--on-band-2); }
+
+/* market 2x2 */
+.split { display: flex; flex-wrap: wrap; gap: 56px; align-items: center; }
+.split > * { flex: 1 1 420px; min-width: 0; }
+.quad { display: grid; grid-template-columns: 76px minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.axis { font-size: 12px; font-weight: 700; color: var(--red-text); display: flex; align-items: center; }
+.axis.x { justify-content: center; }
+.qcell { text-align: left; border-radius: 12px; padding: 16px; min-height: 118px; display: flex; flex-direction: column; gap: 8px; background: var(--band); color: var(--on-band); border: 3px solid transparent; transition: transform .2s; }
+.qcell:hover { transform: translateY(-2px); }
+.qcell .n { font-size: 17px; font-weight: 800; }
+.qcell .m { font-size: 13px; line-height: 1.4; font-weight: 600; color: var(--green-on-band); }
+.qcell.mismatch { background: var(--red); }
+.qcell.mismatch .m { color: #FFFFFF; }
+.qcell.empty { background: transparent; color: var(--muted); border: 2px dashed var(--line-2); }
+.qcell.empty .m { color: var(--muted); font-weight: 400; }
+.qcell[aria-pressed="true"] { border-color: var(--red-text); }
+.qcell.mismatch[aria-pressed="true"] { border-color: var(--ink); }
+.qdetail { background: var(--paper); border-radius: 12px; padding: 16px 18px; font-size: 15px; color: var(--ink-2); margin-top: 12px; }
+
+/* problem chapter opener */
+.chapter { position: relative; overflow: hidden; }
+.chapter .wrap { padding-block: 104px 56px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 40px; align-items: end; }
+.chapter .num { font-size: clamp(110px, 16vw, 220px); line-height: .8; font-weight: 800; letter-spacing: -0.06em; color: var(--red); }
+.chapter .ch-copy { gap: 14px; padding-bottom: 10px; }
+.chapter .ch-tag { display: inline-flex; align-self: flex-start; gap: 8px; align-items: center; background: var(--red); color: #FFFFFF; font-size: 12px; font-weight: 800; letter-spacing: 0.14em; padding: 7px 12px; border-radius: 99px; }
+.chapter h2 { font-size: clamp(30px, 4vw, 50px); line-height: 1.08; font-weight: 800; letter-spacing: -0.025em; }
+.chapter .quote { font-size: 19px; line-height: 1.5; font-style: italic; color: var(--ink-2); max-width: 720px; }
+.chapter.p2 .num { color: var(--ink); }
+.chapter.p2 .ch-tag { background: var(--ink); color: var(--paper); }
+
+/* side-by-side comparison */
+.cmp { display: grid; gap: 10px; }
+.cmp-head, .cmp-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 44px minmax(0, 1fr); gap: 10px; align-items: stretch; }
+.cmp-head div { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; padding: 0 4px 4px; }
+.cmp-head .h-t { color: var(--red-text); } .cmp-head .h-a { color: var(--green-text); }
+.c-label { font-size: 13px; font-weight: 700; color: var(--muted); display: flex; align-items: center; padding-right: 8px; line-height: 1.35; }
+.c-t, .c-a { border-radius: 12px; padding: 14px 16px; font-size: 15px; line-height: 1.45; display: flex; align-items: center; }
+.c-t { background: var(--red-tint); color: var(--red-tint-text); }
+.c-a { background: var(--green-tint); color: var(--green-tint-text); }
+.c-t b, .c-a b { color: var(--ink); }
+.c-arrow { display: flex; align-items: center; justify-content: center; transform-origin: left; }
+.c-arrow::before { content: ""; height: 2px; flex: 1; background: var(--line-2); }
+.c-arrow::after { content: ""; border: 6px solid transparent; border-left: 8px solid var(--line-2); border-right: 0; }
+
+.cost-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.stat b { display: block; font-size: 26px; font-weight: 800; color: var(--red-text); letter-spacing: -0.01em; line-height: 1.2; }
+.stat span { font-size: 13px; line-height: 1.4; color: var(--muted); }
+
+/* named-box explainer */
+.explain { display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
+.explain-copy { flex: 1 1 280px; min-width: 0; gap: 10px; }
+.tree { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.tree .parent { background: var(--band); color: var(--on-band); border-radius: 12px; padding: 12px 18px; text-align: center; font-size: 13px; }
+.tree .parent b { display: block; font-size: 16px; }
+.tree .stem { width: 2px; height: 18px; background: var(--line-2); }
+.tree .kids { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; position: relative; padding-top: 18px; }
+.tree .kids::before { content: ""; position: absolute; top: 0; left: 16.66%; right: 16.66%; height: 2px; background: var(--line-2); }
+.tree .kid { position: relative; background: var(--green-tint); border: 1px solid var(--green-tint-line); border-radius: 12px; padding: 12px 8px; text-align: center; font-size: 12px; color: var(--green-tint-text); }
+.tree .kid::before { content: ""; position: absolute; top: -19px; left: 50%; width: 2px; height: 18px; background: var(--line-2); }
+.tree .kid svg { display: block; margin: 0 auto 6px; }
+.tree .kid b { display: block; font-size: 14px; color: var(--ink); }
+
+/* "In the app" */
+.app-sec { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tabs button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-size: 14px; font-weight: 600; padding: 11px 16px; border-radius: 99px; min-height: 44px; }
+.tabs button:hover { border-color: var(--ink); }
+.tabs button[aria-selected="true"] { background: var(--chip); color: var(--on-chip); border-color: var(--chip); font-weight: 700; }
+.phones { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px 56px; }
+.phone-col { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: 0 1 280px; min-width: 0; }
+.phone-cap { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; padding: 6px 12px; border-radius: 99px; }
+.phone-cap.t { background: var(--red-tint); color: var(--red-tint-text); }
+.phone-cap.a { background: var(--green-tint); color: var(--green-tint-text); }
+.phone-note { font-size: 14px; line-height: 1.5; color: var(--ink-2); text-align: center; max-width: 280px; min-height: 42px; }
+.phone { width: 270px; max-width: 100%; height: 540px; background: var(--app-bg); border: 9px solid #111111; border-radius: 38px; box-sizing: border-box; overflow: hidden; color: var(--app-ink); box-shadow: 0 18px 40px rgba(0,0,0,.14); position: relative; }
+.screen { display: flex; flex-direction: column; height: 100%; animation: slideIn .35s ease-out; }
+.sb { display: flex; justify-content: space-between; padding: 8px 18px 4px; font-size: 10px; font-weight: 700; background: var(--app-card); }
+.bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px 12px; background: var(--app-card); border-bottom: 1px solid var(--app-line); font-size: 15px; font-weight: 700; }
+.bar .back { font-size: 16px; color: var(--app-muted); }
+.body { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.ac { background: var(--app-card); border: 1px solid var(--app-line); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.ac .lab { font-size: 10px; font-weight: 700; color: var(--app-muted); letter-spacing: 0.08em; }
+.ac .row { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.ac .mut { color: var(--app-muted); font-size: 11px; }
+.dot-s { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.field { border: 1px solid var(--app-line); border-radius: 8px; padding: 8px 10px; font-size: 11px; color: var(--app-muted); background: var(--app-card); }
+.field b { color: var(--app-ink); font-weight: 600; }
+.cta-app { margin-top: auto; background: var(--app-red); color: #FFFFFF; border-radius: 10px; padding: 12px; text-align: center; font-size: 13px; font-weight: 700; }
+.cta-app.ghost { background: transparent; color: var(--app-ink); border: 1px solid var(--app-line); margin-top: 0; }
+.pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.pill.r { background: var(--red-tint); color: var(--red-tint-text); }
+.pill.g { background: var(--green-tint); color: var(--green-tint-text); }
+.pill.a { background: var(--amber-tint); color: var(--amber-text); }
+.group { border: 2px solid var(--green); border-radius: 14px; background: var(--app-card); overflow: hidden; }
+.group .gh { padding: 11px 12px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; border-bottom: 1px solid var(--app-line); }
+.group .kid-row { display: flex; align-items: center; gap: 8px; padding: 9px 12px 9px 26px; font-size: 12px; position: relative; }
+.group .kid-row::before { content: ""; position: absolute; left: 14px; top: 0; bottom: 0; width: 2px; background: var(--green-tint-line); }
+.group .kid-row:last-child::before { bottom: 50%; }
+.group .kid-row::after { content: ""; position: absolute; left: 14px; top: 50%; width: 8px; height: 2px; background: var(--green-tint-line); }
+.group .kid-row span:nth-child(2) { margin-left: auto; }
+.callout { border-radius: 10px; padding: 10px; font-size: 11px; line-height: 1.45; }
+.callout.r { background: var(--red-tint); color: var(--red-tint-text); }
+.callout.g { background: var(--green-tint); color: var(--green-tint-text); }
+.callout.a { background: var(--amber-tint); border: 1px solid var(--amber-line); color: var(--amber-text); }
+.map { position: relative; border-radius: 12px; background: var(--map); overflow: hidden; flex-shrink: 0; }
+.map i { position: absolute; display: block; font-style: normal; }
+.road-h { left: 0; right: 0; height: 12px; background: var(--road); }
+.road-v { top: 0; bottom: 0; width: 11px; background: var(--road); }
+.pin { width: 18px; height: 18px; border-radius: 50%; background: var(--app-red); border: 4px solid #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.me { width: 14px; height: 14px; border-radius: 50%; background: var(--blue); border: 3px solid #FFFFFF; }
+.me-ring { width: 70px; height: 70px; border-radius: 50%; border: 2px dashed var(--blue); background: color-mix(in srgb, var(--blue) 14%, transparent); }
+.boundary { border: 2px dashed var(--green); border-radius: 22px; }
+.house { width: 22px; height: 18px; background: var(--ink); border-radius: 3px; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+/* how it works: the algorithm */
+.how { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.algo { flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; }
+.how-side { flex: 2 1 300px; min-width: 0; gap: 14px; position: sticky; top: 84px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { border: 2px solid var(--band-3); background: transparent; color: var(--on-band-2); font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 99px; min-height: 44px; text-align: left; }
+.chips button:hover { border-color: var(--on-band-3); }
+.chips button[aria-pressed="true"] { border-color: #FFFFFF; background: #FFFFFF; color: #1B1B1B; font-weight: 700; }
+.a-row { display: grid; grid-template-columns: minmax(0, 1.25fr) 70px minmax(0, 1fr); align-items: center; }
+.node { border-radius: 14px; padding: 14px 16px; font-size: 15px; line-height: 1.4; font-weight: 600; background: var(--band-2); border: 2px solid var(--band-3); transition: opacity .35s ease, border-color .35s ease, background .35s ease, transform .35s ease; }
+.node small { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; color: var(--red-on-band); margin-bottom: 4px; }
+.node .res { display: block; margin-top: 6px; font-size: 13px; font-weight: 800; }
+.node.start, .node.store { text-align: center; }
+.node.dec { border-style: solid; }
+.node.out-good .res { color: var(--green-on-band); }
+.node.out-warn .res { color: var(--amber-on-band); }
+.node.out-bad .res { color: var(--red-on-band); }
+.node .sub { display: block; font-size: 13px; font-weight: 400; color: var(--on-band-3); margin-top: 4px; }
+.link { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: var(--on-band-3); display: flex; align-items: center; gap: 6px; transition: opacity .35s, color .35s; }
+.link.no { justify-content: center; flex-direction: column; gap: 2px; }
+.link.no::after { content: ""; width: 100%; height: 2px; background: currentColor; }
+.link.yes { height: 38px; padding-left: calc(31% - 20px); }
+.link.yes::before { content: ""; width: 2px; height: 100%; background: currentColor; }
+.algo.live .node, .algo.live .link { opacity: .28; }
+.algo.live .on { opacity: 1; }
+.algo.live .node.on { border-color: #FFFFFF; }
+.algo.live .link.on { color: #FFFFFF; }
+.algo.live .node.on.out-good { border-color: var(--green-on-band); background: #22301C; }
+.algo.live .node.on.out-warn { border-color: var(--amber-on-band); background: #332C14; }
+.algo.live .node.on.out-bad { border-color: var(--red-on-band); background: #3A1E1B; }
+.result { background: var(--band-2); border-radius: 14px; padding: 16px 18px; font-size: 15px; line-height: 1.5; color: var(--on-band-2); }
+.result b { color: var(--on-band); }
+.core-map { position: relative; height: 230px; background: var(--band-2); border-radius: 14px; overflow: hidden; }
+.core-map i { position: absolute; display: block; font-style: normal; }
+.core-map .rh { left: 0; right: 0; top: 96px; height: 14px; background: var(--band-3); }
+.core-map .rv { top: 0; bottom: 0; left: 55%; width: 12px; background: var(--band-3); }
+.core-map .bd { left: 18%; top: 14%; width: 68%; height: 72%; border: 2px dashed var(--green-on-band); border-radius: 26px; }
+.core-map .lbl { left: calc(18% + 12px); top: calc(14% + 8px); font-size: 11px; font-weight: 700; color: var(--green-on-band); }
+.core-map .ring { left: 44%; top: 56%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; border: 2px dashed var(--blue-on-band); background: rgba(110,160,245,.16); transition: opacity .3s; }
+.core-map .dot { left: 44%; top: 56%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--blue-on-band); border: 2px solid #FFFFFF; transition: opacity .3s; }
+.core-map .dlbl { left: calc(44% - 40px); top: calc(56% + 36px); font-size: 10px; color: var(--on-band-2); transition: opacity .3s; }
+.core-map.noloc .ring, .core-map.noloc .dot, .core-map.noloc .dlbl { opacity: 0; }
+.core-map .cpin { width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: var(--red-on-band); border: 4px solid #FFFFFF; transition: left .5s ease, top .5s ease; }
+.integ { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.ig { background: var(--band-2); border-radius: 14px; padding: 18px; display: flex; gap: 14px; }
+.ig .n { flex: 0 0 30px; height: 30px; border-radius: 50%; background: var(--band-3); color: var(--on-band); font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.ig h4 { margin: 0 0 4px; font-size: 16px; }
+.ig .what { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--green-on-band); margin-bottom: 6px; }
+.ig ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; color: var(--on-band-2); }
+.ig.no-geo { background: transparent; border: 2px dashed var(--band-3); }
+.ig.no-geo .n { background: var(--red-deep); }
+.ig.no-geo .what { color: var(--red-on-band); }
+
+/* thinking */
+.decision { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.chose, .over { border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.chose { background: var(--green-tint); }
+.chose small { color: var(--green-tint-text); }
+.over { background: var(--paper); }
+.over small { color: var(--muted); }
+.chose small, .over small { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; }
+.chose b { font-size: 16px; }
+.over s { font-size: 16px; color: var(--muted); }
+.why { padding: 6px 4px; font-size: 15px; color: var(--ink-2); }
+.teaser { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; width: 100%; text-align: left; background: var(--paper); color: var(--ink); border: 1px solid var(--line-2); border-radius: 18px; padding: 24px 28px; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.teaser:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.08); }
+.teaser > .stack { flex: 1 1 420px; }
+.teaser .t-h { font-size: clamp(20px, 2.2vw, 26px); line-height: 1.25; font-weight: 800; letter-spacing: -0.01em; }
+.t-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.t-chips span { font-size: 12px; font-weight: 700; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px; color: var(--ink-2); }
+.t-open { display: inline-flex; align-items: center; gap: 8px; background: var(--chip); color: var(--on-chip); font-size: 15px; font-weight: 700; padding: 13px 20px; border-radius: 99px; white-space: nowrap; }
+.t-open .chev { display: inline-block; transition: transform .3s; }
+.teaser[aria-expanded="true"] .chev { transform: rotate(180deg); }
+#thinkMore[hidden] { display: none; }
+#thinkMore:not([hidden]) { animation: slideDown .4s ease-out; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+.breaks-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+.breaks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 12px; }
+.brk { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.brk .top { padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; border-left: 5px solid var(--red); }
+.brk .top small, .brk .fix small { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; }
+.brk .top small { color: var(--red-text); }
+.brk .top b { font-size: 16px; }
+.brk .fix { padding: 12px 16px 14px; background: var(--green-tint); color: var(--green-tint-text); font-size: 14px; line-height: 1.5; border-left: 5px solid var(--green); flex: 1; }
+.brk .fix small { display: block; margin-bottom: 2px; }
+
+/* outcome */
+.calc { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 32px; gap: 28px; }
+.city { background: var(--paper); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.city .k { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; color: var(--muted); }
+.timebar { height: 18px; border-radius: 9px; background: var(--line); overflow: hidden; display: flex; }
+.timebar i { display: block; height: 100%; background: var(--red); border-radius: 9px; transition: width .4s ease; }
+.timebar-legend { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+.timebar-legend b { color: var(--red-text); }
+.lost { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 10px; }
+.lost div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.lost b { display: block; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; color: var(--red-text); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.lost span { font-size: 13px; color: var(--muted); }
+.calc label { font-size: 17px; font-weight: 700; }
+.calc label output { color: var(--red-text); font-variant-numeric: tabular-nums; }
+.calc input[type=range] { width: 100%; max-width: 640px; accent-color: var(--red); height: 32px; }
+.scale { display: flex; justify-content: space-between; max-width: 640px; font-size: 12px; color: var(--muted); }
+.daily { font-size: 15px; color: var(--ink-2); }
+.daily b { color: var(--red-text); font-variant-numeric: tabular-nums; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+.tile { border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.tile small { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; }
+.tile b { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.tile span { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.tile.loss { background: var(--red-tint); } .tile.loss small, .tile.loss b { color: var(--red-tint-text); }
+.tile.save { background: var(--green-tint); } .tile.save small, .tile.save b { color: var(--green-tint-text); }
+.tile.cost-t { background: var(--paper); } .tile.cost-t small { color: var(--muted); }
+.tile.pay { background: var(--band); color: var(--on-band); } .tile.pay small { color: var(--green-on-band); } .tile.pay span { color: var(--on-band-2); }
+.method { font-size: 13px; color: var(--muted); }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.metric { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.metric .top { display: flex; justify-content: space-between; align-items: center; }
+.metric .top b { font-size: 26px; font-weight: 800; color: var(--red-text); }
+.metric .top span { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; background: var(--paper); color: var(--ink-2); padding: 4px 10px; border-radius: 99px; }
+.metric h4 { margin: 0; font-size: 16px; }
+.metric p { font-size: 14px; color: var(--ink-2); }
+.pilot { background: var(--green-tint); border-radius: 16px; padding: 24px 28px; display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: center; }
+.pilot .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; color: var(--green-tint-text); }
+.pilot p { flex: 1 1 420px; min-width: 0; font-size: 17px; }
+
+/* talk */
+.talk { padding-block: 104px; gap: 24px; align-items: flex-start; }
+.talk .eyebrow { color: var(--green-on-band); }
+.talk h2 { font-size: clamp(30px, 4.4vw, 54px); line-height: 1.08; font-weight: 800; letter-spacing: -0.025em; max-width: 900px; }
+.contact { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.email { font-size: 18px; font-weight: 700; color: var(--on-band); background: var(--band-2); padding: 14px 18px; border-radius: 10px; user-select: all; }
+.btn-red { background: var(--red); color: #FFFFFF; border: 0; text-decoration: none; padding: 15px 22px; border-radius: 10px; font-size: 15px; font-weight: 700; min-height: 48px; }
+.btn-red:hover { background: var(--red-deep); }
+.talk .back { color: var(--on-band-2); text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 6px; }
+
+/* feedback */
+.fb-card { max-width: 760px; width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 28px; box-sizing: border-box; gap: 24px; overflow: hidden; }
+.fb-top { display: flex; align-items: center; gap: 16px; }
+.bars { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.bars i { height: 6px; border-radius: 3px; background: var(--line-2); transition: background .3s; }
+.bars i.done { background: var(--ink); }
+.bars i.now { background: var(--red); }
+.fb-count { font-size: 13px; font-weight: 700; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fb-slide { gap: 18px; animation: slideIn .35s ease-out; }
+.fb-slide .k { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--muted); }
+.fb-slide .q { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; }
+.opts { display: flex; flex-wrap: wrap; gap: 10px; }
+.opts button { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 600; padding: 12px 19px; border-radius: 99px; min-height: 48px; }
+.opts button:hover { border-color: var(--ink); }
+.opts button[aria-pressed="true"] { background: var(--chip); color: var(--on-chip); border-color: var(--chip); font-weight: 700; }
+.summary { display: flex; flex-wrap: wrap; gap: 8px; }
+.summary span { background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; font-size: 13px; }
+.fb-card textarea { font: inherit; font-size: 15px; line-height: 1.5; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 10px; resize: vertical; background: var(--surface); color: var(--ink); }
+.fb-actions { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.btn-dark { background: var(--chip); color: var(--on-chip); text-decoration: none; padding: 15px 22px; border-radius: 10px; font-size: 15px; font-weight: 700; border: 0; }
+.link-btn { border: 0; background: transparent; color: var(--ink-2); font-size: 14px; font-weight: 600; padding: 12px 0; min-height: 44px; align-self: flex-start; }
+.footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 20px; }
+
+@media (max-width: 760px) {
+  .pad { padding-block: 64px; }
+  .nav .brand { display: none; }
+  .nav .links { margin-left: 0; }
+  .chapter .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 72px 40px; }
+  .cmp-head, .cmp-row { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 6px; }
+  .cmp-head { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 2; background: var(--paper); padding-top: 8px; }
+  .cmp-head > :first-child { display: none; }
+  .c-label { grid-column: 1 / -1; padding-top: 8px; }
+  .c-t, .c-a { font-size: 13px; padding: 11px 12px; }
+  .a-row { grid-template-columns: minmax(0, 1fr); }
+  .link.no { flex-direction: row; justify-content: flex-start; padding: 8px 0 8px 24px; height: auto; }
+  .link.no::after { width: 2px; height: 16px; order: -1; }
+  .a-row .node.side { margin-left: 24px; }
+  .link.yes { padding-left: 24px; }
+  .how-side { position: static; order: -1; }
+  .quad { grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr); }
+  .calc, .explain { padding: 20px; }
+  .fb-card { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .rv, .js .cmp-row.rv > * { opacity: 1; transform: none; }
+}
+</style>
+
+<nav class="nav" aria-label="Sections">
+  <div class="wrap">
+    <div class="brand">Modit's Product Proposal</div>
+    <div class="links" id="navLinks">
+      <a href="#story">Story</a>
+      <a href="#problem-1">Problem 1</a>
+      <a href="#problem-2">Problem 2</a>
+      <a href="#how">How it works</a>
+      <a href="#thinking">Thinking</a>
+      <a href="#outcome">Outcome</a>
+      <a href="#measure">Measure</a>
+      <a href="#feedback">Feedback</a>
+      <a href="#talk" class="cta">Let's talk</a>
+    </div>
+  </div>
+  <div class="progress" id="progress"></div>
+</nav>
+
+<header id="story" class="band" data-spy>
+  <div class="wrap hero">
+    <div class="stack hero-copy">
+      <div class="eyebrow">Case study · Delhivery B2C app · first-hand</div>
+      <h1>I gave Delhivery 3 boxes. I got back 3 tracking numbers, and a live map that couldn't find my door.</h1>
+      <p class="lead">Two problems, the fix I'd ship for each, and what it would return. About 3 minutes.</p>
+      <div class="scope">
+        <span class="scope-k">SCOPE</span>
+        <span><b>Only the Delhivery B2C app</b>, where individuals send parcels. These problems don't come up in the Delhivery business app or Delhivery One.</span>
+      </div>
+    </div>
+    <div class="stack hero-side">
+      <svg class="hero-art" viewBox="0 0 420 260" role="img" aria-label="A street map: one pickup of 3 boxes splits into 3 routes arriving Tuesday, Thursday and Friday, while the live map pin sits 72 metres from the door">
+        <rect x="0.5" y="0.5" width="419" height="259" rx="16" fill="#171717" stroke="#2E2E2E"/>
+        <g fill="#1F1F1F">
+          <rect x="16" y="16" width="120" height="40" rx="4"/><rect x="164" y="16" width="112" height="40" rx="4"/><rect x="304" y="16" width="100" height="40" rx="4"/>
+          <rect x="164" y="84" width="112" height="72" rx="4"/><rect x="304" y="84" width="24" height="72" rx="4"/>
+          <rect x="16" y="184" width="120" height="60" rx="4"/><rect x="164" y="184" width="112" height="60" rx="4"/><rect x="304" y="184" width="100" height="60" rx="4"/>
+        </g>
+        <g stroke="#262626" stroke-width="12" fill="none"><path d="M0 70 H420 M0 170 H420 M150 0 V260 M290 0 V260"/></g>
+        <g fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path class="route" d="M44 126 H146 V66 H362 V106" stroke="#F07A6E"/>
+          <path class="route" d="M44 130 H336" stroke="#D9BB55" style="animation-duration: 2.2s"/>
+          <path class="route" d="M44 134 H154 V174 H362 V154" stroke="#9CCB7E" style="animation-duration: 2.8s"/>
+        </g>
+        <g font-family="Inter, sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em" fill="#A8A8A8">
+          <text x="170" y="60">AWB …4471 · TUE</text>
+          <text x="170" y="124">AWB …4472 · THU</text>
+          <text x="170" y="190">AWB …4473 · FRI</text>
+        </g>
+        <circle cx="40" cy="130" r="7" fill="#171717" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="22" y="104" font-family="Inter, sans-serif" font-size="9" font-weight="800" letter-spacing="0.12em" fill="#FFFFFF">PICKUP</text>
+        <text x="22" y="116" font-family="Inter, sans-serif" font-size="9" font-weight="600" letter-spacing="0.08em" fill="#A8A8A8">3 BOXES</text>
+        <rect x="340" y="108" width="44" height="44" rx="4" fill="#262626" stroke="#FFFFFF" stroke-width="1.5"/>
+        <circle cx="362" cy="130" r="3.5" fill="#FFFFFF"/>
+        <text x="340" y="98" font-family="Inter, sans-serif" font-size="9" font-weight="800" letter-spacing="0.12em" fill="#FFFFFF">MY DOOR</text>
+        <path d="M296 214 L346 154" stroke="#F07A6E" stroke-width="1" stroke-dasharray="2 4"/>
+        <circle class="pulse" cx="290" cy="222" r="5" fill="none" stroke="#F07A6E" stroke-width="1.5"/>
+        <path d="M290 222 c-5 -7 -9 -11 -9 -16 a9 9 0 1 1 18 0 c0 5 -4 9 -9 16z" fill="#C8382C"/>
+        <circle cx="290" cy="206" r="3" fill="#171717"/>
+        <g font-family="Inter, sans-serif" font-size="9" letter-spacing="0.1em" text-anchor="end">
+          <text x="276" y="212" font-weight="800" fill="#F07A6E">LIVE MAP PIN</text>
+          <text x="276" y="225" font-weight="600" fill="#C9C9C9">72 M FROM THE DOOR</text>
+        </g>
+      </svg>
+      <div class="stack cost">
+        <div class="label">WHAT IT COSTS</div>
+        <div class="big">₹7–13L / year</div>
+        <p>in one tier 2 city with 20 riders, lost to wrong-location detours and split deliveries. An outside-in estimate; the pilot narrows it.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="light" data-spy-parent="story">
+  <div class="wrap pad split">
+    <div class="stack rv" style="gap: 20px">
+      <div class="eyebrow">Why it happens</div>
+      <h2 class="h2">Delhivery runs a quick-commerce live map on e-commerce addresses</h2>
+      <p class="lead">Multi-day players skip live tracking and take text addresses. Quick commerce pins every drop. Delhivery sits in between, so it has to honour both.</p>
+      <p style="font-size: 20px; font-weight: 700">If the live map stays, it has to run on a real pin.</p>
+      <p class="hint">Tap a box to see how each model works.</p>
+    </div>
+    <div class="rv">
+      <div class="quad" id="quad">
+        <div class="axis">Live map</div>
+        <button type="button" class="qcell mismatch" data-q="dl" aria-pressed="true"><span class="n">Delhivery B2C app</span><span class="m">Text address + live map. The map shows the wrong spot.</span></button>
+        <button type="button" class="qcell" data-q="qc" aria-pressed="false"><span class="n">Blinkit, Zepto</span><span class="m">Pinned drop + live map. Consistent.</span></button>
+        <div class="axis">No live map</div>
+        <button type="button" class="qcell" data-q="ec" aria-pressed="false"><span class="n">Amazon, D2C</span><span class="m">Text address, no live map. Consistent.</span></button>
+        <button type="button" class="qcell empty" data-q="none" aria-pressed="false"><span class="n">Nobody</span><span class="m">Except a few one-day pharmacy players.</span></button>
+        <div></div>
+        <div class="axis x">Multi-day</div>
+        <div class="axis x">Real-time</div>
+      </div>
+      <p class="qdetail" id="qdetail" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM 1 -->
+<section id="problem-1" data-spy>
+  <div class="chapter">
+    <div class="wrap">
+      <div class="num rv" aria-hidden="true">01</div>
+      <div class="stack ch-copy rv">
+        <span class="ch-tag">PROBLEM 1 OF 2 · MULTI-BOX</span>
+        <h2>One pickup, three boxes. Delhivery treated them as three strangers.</h2>
+        <p class="quote">“I handed over 3 boxes in one pickup. Why did I have to create 3 orders, and why do I have 3 tracking numbers?”</p>
+      </div>
+    </div>
+  </div>
+  <div class="wrap stack" style="gap: 28px; padding-bottom: 72px">
+    <div class="cmp" role="table" aria-label="Problem 1: today compared with my fix">
+      <div class="cmp-head" role="row"><div role="columnheader"></div><div class="h-t" role="columnheader">TODAY</div><div></div><div class="h-a" role="columnheader">AFTER · MY FIX</div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">Booking</div><div class="c-t" role="cell">3 separate orders, each typed in from scratch</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>1 booking with 3 named boxes</b>: Books, Kitchen, Clothes</span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">Tracking number</div><div class="c-t" role="cell">3 AWBs with nothing linking them</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>1 parent AWB</b>; each box keeps its own child label</span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">On the road</div><div class="c-t" role="cell">Each box routed alone, arriving Tue, Thu and Fri</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>Routed together.</b> A box is held back only for a reason, and you're told which and why</span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">At the door</div><div class="c-t" role="cell">3 visits, 3 OTPs</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>1 visit, 1 OTP</b></span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">“Where's my parcel?”</div><div class="c-t" role="cell">3 separate statuses, up to 3 support calls</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>1 combined status</b>, box by box</span></div></div>
+    </div>
+
+    <div class="explain rv">
+      <div class="stack explain-copy">
+        <div class="eyebrow" style="color: var(--green-text)">In plain words</div>
+        <h3 class="h3">What a “named box” is</h3>
+        <p style="color: var(--ink-2)">While booking, you add each box and give it a name. All three ride under one parent tracking number, and each still has its own label, so you and the rider always know which box is which.</p>
+      </div>
+      <div class="tree" aria-label="One parent AWB with three child boxes">
+        <div class="parent"><b>Parent AWB …4470</b>1 shipment · 1 visit</div>
+        <div class="stem"></div>
+        <div class="kids">
+          <div class="kid"><svg width="30" height="26" viewBox="0 0 30 26" aria-hidden="true"><rect x="2" y="6" width="26" height="18" rx="3" fill="#C8A26B"/><rect x="2" y="2" width="26" height="6" rx="2" fill="#B08A55"/></svg><b>Books</b>…4470-1</div>
+          <div class="kid"><svg width="30" height="26" viewBox="0 0 30 26" aria-hidden="true"><rect x="2" y="6" width="26" height="18" rx="3" fill="#C8A26B"/><rect x="2" y="2" width="26" height="6" rx="2" fill="#B08A55"/></svg><b>Kitchen</b>…4470-2</div>
+          <div class="kid"><svg width="30" height="26" viewBox="0 0 30 26" aria-hidden="true"><rect x="2" y="6" width="26" height="18" rx="3" fill="#C8A26B"/><rect x="2" y="2" width="26" height="6" rx="2" fill="#B08A55"/></svg><b>Clothes</b>…4470-3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cost-strip rv">
+      <div class="stat"><b>3×</b><span>doorstep visits instead of 1</span></div>
+      <div class="stat"><b>3×</b><span>“where's my parcel” calls</span></div>
+      <div class="stat"><b>₹25k</b><span>a month in extra visits, per city</span></div>
+    </div>
+  </div>
+
+  <div class="app-sec">
+    <div class="wrap stack" style="gap: 28px; padding-block: 64px">
+      <div class="stack rv" style="gap: 10px">
+        <div class="eyebrow">Problem 1 · in the app</div>
+        <h3 class="h3">The same Delhivery screens, with the fix built in</h3>
+        <p class="hint">Redrawn from the current app's layout. Pick a screen to compare.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Problem 1 screens" id="p1tabs">
+        <button type="button" role="tab" data-i="0" aria-selected="true">Booking: package details</button>
+        <button type="button" role="tab" data-i="1" aria-selected="false">Tracking: my shipments</button>
+      </div>
+      <div class="phones" id="p1phones"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM 2 -->
+<section id="problem-2" data-spy>
+  <div class="chapter p2">
+    <div class="wrap">
+      <div class="num rv" aria-hidden="true">02</div>
+      <div class="stack ch-copy rv">
+        <span class="ch-tag">PROBLEM 2 OF 2 · LOCATION</span>
+        <h2>Then the live map put my parcel somewhere I wasn't.</h2>
+        <p class="quote">“The live map shows my parcel somewhere I'm not. The rider called me three times for directions.”</p>
+      </div>
+    </div>
+  </div>
+  <div class="wrap stack" style="gap: 28px; padding-bottom: 72px">
+    <div class="cmp" role="table" aria-label="Problem 2: today compared with my fix">
+      <div class="cmp-head" role="row"><div role="columnheader"></div><div class="h-t" role="columnheader">TODAY</div><div></div><div class="h-a" role="columnheader">AFTER · MY FIX</div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">The address</div><div class="c-t" role="cell">Typed as text. The app never asks for a pin.</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>Text + a pin on the door.</b> The map opens inside your pin code, so it's one tap.</span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">Where the location comes from</div><div class="c-t" role="cell">The backend guesses a point from the text. Vague text, vague point.</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>The pin itself</b>, checked against the registered pin code and your live location</span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">The live map</div><div class="c-t" role="cell">Shows the parcel somewhere you aren't</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>Shows the door you confirmed</b></span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">The rider</div><div class="c-t" role="cell">Calls 3 times for directions, a 20-minute detour</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>Navigates to the pin</b> and sees how sure it is</span></div></div>
+      <div class="cmp-row rv" role="row"><div class="c-label" role="rowheader">Sender doesn't know the drop</div><div class="c-t" role="cell">Nothing catches it; the sender guesses</div><div class="c-arrow" aria-hidden="true"></div><div class="c-a" role="cell"><span><b>The receiver pins it</b> from a WhatsApp link (3-day cap)</span></div></div>
+    </div>
+    <div class="cost-strip rv">
+      <div class="stat"><b>8–20%</b><span>of rider capacity lost daily</span></div>
+      <div class="stat"><b>1.7–4</b><span>full rider shifts a day spent on detours</span></div>
+      <div class="stat"><b>₹4–10L</b><span>a year in detour costs, per city</span></div>
+    </div>
+  </div>
+
+  <div class="app-sec">
+    <div class="wrap stack" style="gap: 28px; padding-block: 64px">
+      <div class="stack rv" style="gap: 10px">
+        <div class="eyebrow">Problem 2 · in the app</div>
+        <h3 class="h3">Four moments, today vs with the fix</h3>
+        <p class="hint">Redrawn from the current app's layout. Step through the journey.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Problem 2 screens" id="p2tabs">
+        <button type="button" role="tab" data-i="0" aria-selected="true">1 · Add the drop address</button>
+        <button type="button" role="tab" data-i="1" aria-selected="false">2 · Check the pin</button>
+        <button type="button" role="tab" data-i="2" aria-selected="false">3 · Sender doesn't know the drop</button>
+        <button type="button" role="tab" data-i="3" aria-selected="false">4 · Out for delivery</button>
+      </div>
+      <div class="phones" id="p2phones"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="band" data-spy>
+  <div class="wrap pad stack" style="gap: 36px">
+    <div class="stack rv" style="gap: 14px; max-width: 820px">
+      <div class="eyebrow">How it works · the core</div>
+      <h2 class="h2">One service checks every pin once, at booking</h2>
+      <p class="lead">The Address &amp; Geofence Service reads top to bottom: first the registered pin code, then the user's live location. The result is stored on the order, and everything downstream just reads it. Pick a pin and follow its path.</p>
+    </div>
+    <div class="how">
+      <div class="algo live rv" id="algo" aria-live="polite">
+        <div class="a-row"><div class="node start" data-n="start">The user drops a pin on the map</div></div>
+        <div class="link yes" data-n="l0" aria-hidden="true"></div>
+        <div class="a-row">
+          <div class="node dec" data-n="d1"><small>CHECK 1 · PIN CODE</small>Is the pin inside the registered pin code?</div>
+          <div class="link no" data-n="n1">NO</div>
+          <div class="node side out-bad" data-n="r1">Ask to re-pin<span class="sub">Back to the map. Catches pins dropped at the sender's own home.</span><span class="res">Not stored</span></div>
+        </div>
+        <div class="link yes" data-n="y1">YES</div>
+        <div class="a-row">
+          <div class="node dec" data-n="d2"><small>CHECK 2 · LIVE LOCATION</small>Did the user allow location access?</div>
+          <div class="link no" data-n="n2">NO</div>
+          <div class="node side out-warn" data-n="r2">Ask “Is this your door?”<span class="sub">Nothing to compare against, so the user confirms by hand.</span><span class="res">Low confidence · rider calls ahead</span></div>
+        </div>
+        <div class="link yes" data-n="y2">YES</div>
+        <div class="a-row">
+          <div class="node dec" data-n="d3"><small>CHECK 2 · DISTANCE</small>Is the pin within 50m of where the user is right now?</div>
+          <div class="link no" data-n="n3">NO</div>
+          <div class="node side out-warn" data-n="r3">Ask “Is this your door? It's 72m from you.”<span class="sub">The user confirms, and the pin wins.</span><span class="res">Medium confidence · rider trusts the pin</span></div>
+        </div>
+        <div class="link yes" data-n="y3">YES</div>
+        <div class="a-row"><div class="node out-good" data-n="r4">Accepted automatically<span class="res">High confidence</span></div></div>
+        <div class="link yes" data-n="l4" aria-hidden="true"></div>
+        <div class="a-row"><div class="node store" data-n="end">Store the pin + confidence on the order<span class="sub">The rider app and the live map read it. Nothing is re-checked later.</span></div></div>
+      </div>
+      <div class="stack how-side rv">
+        <div class="eyebrow" style="color: var(--on-band-3)">Try a pin</div>
+        <div class="chips" role="group" aria-label="Choose a pin to test" id="scen"></div>
+        <div class="core-map" id="coreMap" aria-hidden="true">
+          <i class="rh"></i><i class="rv"></i><i class="bd"></i>
+          <i class="lbl">Registered pin code</i>
+          <i class="ring"></i><i class="dot"></i><i class="dlbl">User, right now · 50m</i>
+          <i class="cpin" id="cpin"></i>
+        </div>
+        <p class="result" id="result"></p>
+      </div>
+    </div>
+
+    <div class="stack" style="gap: 16px; margin-top: 24px">
+      <h3 class="h3 rv">What needs to be integrated</h3>
+      <div class="integ">
+        <div class="ig rv"><div class="n">1</div><div><h4>Google Maps SDK (Android + iOS)</h4><div class="what">THE PIN-DROP MAP</div><ul><li>Draggable pin on the booking and receiver screens</li><li>Opens centred on the typed pin code</li><li>Same map tiles in the rider app</li></ul></div></div>
+        <div class="ig rv"><div class="n">2</div><div><h4>Pin-code boundaries</h4><div class="what">CHECK 1</div><ul><li>One polygon per pin code, from Delhivery's own serviceability data</li><li>Server-side “point in polygon” test on every pin</li><li>Also draws the dashed boundary on the map</li></ul></div></div>
+        <div class="ig rv"><div class="n">3</div><div><h4>Device location permission</h4><div class="what">CHECK 2</div><ul><li>Android Fused Location / iOS Core Location, “while using the app” only</li><li>Read once, when the user confirms the pin, with its accuracy</li><li>Never tracked in the background</li></ul></div></div>
+        <div class="ig rv"><div class="n">4</div><div><h4>Address &amp; Geofence Service (new)</h4><div class="what">THE DECISION</div><ul><li>Runs both checks and the 50m distance test</li><li>Writes lat/long + confidence onto the AWB</li><li>Threshold is a config value, tuned in the pilot</li></ul></div></div>
+        <div class="ig rv"><div class="n">5</div><div><h4>WhatsApp Business API</h4><div class="what">RECEIVER FALLBACK</div><ul><li>Template message with a one-tap pin link</li><li>Reminder on day 2; order held after day 3</li><li>The receiver's pin goes through the same checks</li></ul></div></div>
+        <div class="ig rv"><div class="n">6</div><div><h4>Order, rider and tracking systems</h4><div class="what">READ ONLY, NO CHANGE</div><ul><li>Order management stores the result</li><li>Rider app navigates to the pin and shows confidence</li><li>Customer live map shows the confirmed door</li></ul></div></div>
+        <div class="ig no-geo rv"><div class="n">✕</div><div><h4>Not used: geocoding the text address</h4><div class="what">DELIBERATELY LEFT OUT</div><ul><li>Google can't always return coordinates for an Indian text address</li><li>The pin replaces the guess; the text stays for the rider to read</li></ul></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THINKING -->
+<section id="thinking" class="light" data-spy>
+  <div class="wrap stack" style="gap: 36px; padding-block: 56px">
+    <button type="button" class="teaser rv" id="thinkBtn" aria-expanded="false" aria-controls="thinkMore">
+      <span class="stack" style="gap: 8px; min-width: 0">
+        <span class="eyebrow">Optional · how I thought</span>
+        <span class="t-h">Every fix had a cheaper option. Why I didn't take it, and where this still breaks.</span>
+        <span class="t-chips"><span>4 decisions</span><span>6 edge cases</span><span>1 min read</span></span>
+      </span>
+      <span class="t-open" id="thinkLabel">Open <span class="chev" aria-hidden="true">↓</span></span>
+    </button>
+    <div class="stack" id="thinkMore" hidden style="gap: 36px">
+    <div class="stack" style="gap: 12px">
+      <div class="decision rv"><div class="chose"><small>I CHOSE</small><b>The location pin is mandatory</b></div><div class="over"><small>OVER</small><s>An optional pin</s></div><p class="why">The fix only works if nearly every order has a pin. An optional pin means low adoption.</p></div>
+      <div class="decision rv"><div class="chose"><small>I CHOSE</small><b>Fix the input, keep the live map</b></div><div class="over"><small>OVER</small><s>Hide the live pin when confidence is low</s></div><p class="why">Hiding it is cheaper, but it hides the problem and gives up a differentiator.</p></div>
+      <div class="decision rv"><div class="chose"><small>I CHOSE</small><b>The sender pins; the receiver only as a fallback</b></div><div class="over"><small>OVER</small><s>The receiver always pins</s></div><p class="why">It keeps booking in one flow. The receiver step runs only when the sender doesn't know the drop.</p></div>
+      <div class="decision rv"><div class="chose"><small>I CHOSE</small><b>Hold boxes by cause</b></div><div class="over"><small>OVER</small><s>Always ship together</s></div><p class="why">A problem with one box's contents holds only that box. A network delay holds briefly, and communication comes first.</p></div>
+    </div>
+
+    <div class="stack" style="gap: 16px; margin-top: 24px">
+      <div class="breaks-head rv">
+        <h3 class="h3">Where this still breaks, and my answer</h3>
+        <span class="hint">6 edge cases I'd rather name than hide</span>
+      </div>
+      <div class="breaks">
+        <div class="brk rv"><div class="top"><small>BREAKS · UPSTREAM</small><b>The receiver never pins</b></div><div class="fix"><small>MY ANSWER</small>After 3 days the order is held. Some bookings may drop off; I'd measure it in the pilot.</div></div>
+        <div class="brk rv"><div class="top"><small>BREAKS · UPSTREAM</small><b>Location permission denied</b></div><div class="fix"><small>MY ANSWER</small>Check 2 can't run, so the user confirms by hand and the rider sees low confidence. Track the denial rate.</div></div>
+        <div class="brk rv"><div class="top"><small>BREAKS · UPSTREAM</small><b>E-commerce brand shipments</b></div><div class="fix"><small>MY ANSWER</small>The address comes from the brand's checkout, not our app. Out of scope for v1.</div></div>
+        <div class="brk rv"><div class="top"><small>BREAKS · LINKED BOXES</small><b>Failed attempt (NDR)</b></div><div class="fix"><small>MY ANSWER</small>Each box keeps its own status. The re-attempt goes to the validated pin, not the text address.</div></div>
+        <div class="brk rv"><div class="top"><small>BREAKS · LINKED BOXES</small><b>Return to origin and damage claims</b></div><div class="fix"><small>MY ANSWER</small>Raised on the one affected box, but still visible under the parent shipment.</div></div>
+        <div class="brk rv"><div class="top"><small>BREAKS · LINKED BOXES</small><b>Cash on delivery and SLA</b></div><div class="fix"><small>MY ANSWER</small>Tracked per box, so billing doesn't change. The customer sees one combined status.</div></div>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUTCOME -->
+<section id="outcome" data-spy>
+  <div class="wrap pad stack" style="gap: 36px">
+    <div class="stack rv" style="gap: 14px; max-width: 820px">
+      <div class="eyebrow">Outcome</div>
+      <h2 class="h2">₹9L to build. It pays for itself in 1.5–3 months.</h2>
+      <p class="lead">Delhivery's real wrong-location rate isn't public, so drag the slider between my base and worst case and watch the numbers change.</p>
+    </div>
+    <div class="stack calc rv">
+      <div class="stack" style="gap: 10px">
+        <label for="incidents">Wrong-location incidents per rider, per day: <output id="incOut" for="incidents">2</output></label>
+        <input id="incidents" type="range" min="2" max="5" step="0.5" value="2">
+        <div class="scale"><span>2 · base case</span><span>5 · worst case</span></div>
+      </div>
+      <div class="city" aria-live="polite">
+        <div class="k">RIDER TIME IN ONE TIER 2 CITY · 20 RIDERS × 8-HOUR SHIFTS = 160 HOURS A DAY</div>
+        <div class="timebar" aria-hidden="true"><i id="lostBar"></i></div>
+        <div class="timebar-legend"><span><b id="lostPct">8%</b> spent on wrong-location detours</span><span>160 hrs</span></div>
+        <div class="lost">
+          <div><b id="lostDay">13 hrs</b><span>lost every day</span></div>
+          <div><b id="lostShifts">1.7</b><span>full rider shifts wasted a day</span></div>
+          <div><b id="lostMonth">333 hrs</b><span>lost a month (25 working days)</span></div>
+        </div>
+      </div>
+      <div class="tiles" aria-live="polite">
+        <div class="tile loss"><small>LOSS PER CITY / MONTH</small><b id="tLoss">₹58k</b><span id="tLossNote">Detours ₹33k + split deliveries ₹25k</span></div>
+        <div class="tile save"><small>SAVED / MONTH · 10 CITIES</small><b id="tSave">₹4.08L</b><span>Assumes the fix recovers 70% of the loss</span></div>
+        <div class="tile cost-t"><small>COST</small><b>₹9L</b><span>one-time (4.5 people × 2 months) + ₹1.05L/month to run</span></div>
+        <div class="tile pay"><small>PAYBACK</small><b id="tPay">3.0 months</b><span>Across 10 tier 2 cities</span></div>
+      </div>
+      <p class="method">How it's worked out: 20 riders × incidents × 20 min × ₹100/rider-hour × 25 working days, plus 20 multi-box orders/day × ₹50. Every figure is an estimate, to be validated with Delhivery data.</p>
+    </div>
+  </div>
+</section>
+
+<section id="measure" class="light" data-spy>
+  <div class="wrap pad stack" style="gap: 36px">
+    <div class="stack rv" style="gap: 14px; max-width: 820px">
+      <div class="eyebrow">Measure</div>
+      <h2 class="h2">Four numbers tell me if it works. Each one drives the next.</h2>
+    </div>
+    <div class="stack" style="gap: 16px">
+      <div class="metrics">
+        <div class="metric rv"><div class="top"><b>1</b><span>LEADING</span></div><h4>Pin adoption</h4><p>Bookings with a validated pin ÷ all bookings. Guardrail: drop-off at the pin step.</p></div>
+        <div class="metric rv"><div class="top"><b>2</b><span>LEADING</span></div><h4>Pin accuracy</h4><p>Pins accepted within 50m of the live location, or confirmed by the user ÷ all pins.</p></div>
+        <div class="metric rv"><div class="top"><b>3</b><span>LEADING</span></div><h4>Rider detours</h4><p>Deliveries with a call to the customer, or a stop outside the 50m geofence before the handover scan ÷ all deliveries.</p></div>
+        <div class="metric rv"><div class="top"><b>4</b><span>LAGGING</span></div><h4>First-attempt success</h4><p>AWBs delivered after a single out-for-delivery scan ÷ AWBs sent out. Pinned vs unpinned.</p></div>
+      </div>
+    </div>
+    <div class="pilot rv">
+      <div class="tag">HOW I'D PROVE IT</div>
+      <p><b>A 4-week pilot in one tier 2 city</b>, comparing pinned and unpinned orders. It wins if first-attempt success rises and drop-off at the pin step stays under 5%.</p>
+    </div>
+  </div>
+</section>
+
+<section id="talk" class="band" data-spy>
+  <div class="wrap stack talk rv">
+    <div class="eyebrow">The same day, replayed</div>
+    <h2>3 boxes, 1 tracking number, 1 pin on the door, 1 visit. No calls.</h2>
+    <p class="lead">I'd value 15 minutes to pressure-test this with you: where my assumptions are wrong, and what your data says.</p>
+    <div class="contact">
+      <span class="email" id="email">modit2304@gmail.com</span>
+      <button type="button" class="btn-red" id="copyEmail">Copy email</button>
+      <a href="#feedback" class="back">Or leave quick feedback ↓</a>
+    </div>
+  </div>
+</section>
+
+<section id="feedback" class="light" data-spy>
+  <div class="wrap stack" style="padding-block: 88px 72px; gap: 28px">
+    <div class="stack rv" style="gap: 12px; max-width: 760px">
+      <div class="eyebrow">Your honest read · 30 seconds</div>
+      <h2 class="h2" style="font-size: clamp(26px, 3vw, 36px)">Tell me where this lands, and where it doesn't</h2>
+      <p class="lead">Five quick questions, one at a time. Tap an answer and the next one slides in. A blunt answer helps me more than a polite one.</p>
+    </div>
+    <div class="stack fb-card">
+      <div class="fb-top">
+        <div class="bars" id="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="fb-count" id="fbCount" aria-live="polite">Question 1 of 5</div>
+      </div>
+      <div id="fbBody"></div>
+      <button type="button" class="link-btn" id="fbBack" hidden>← Previous question</button>
+    </div>
+    <p class="footer">Delhivery case study · Modit Joshi · an independent proposal based on my own experience as a customer. App screens are redrawn for illustration.</p>
+  </div>
+</section>
+
+<script>
+(function () {
+  document.documentElement.classList.add('js');
+
+  // Scroll reveal
+  var rvEls = document.querySelectorAll('.rv');
+  if ('IntersectionObserver' in window) {
+    var rvObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); rvObs.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    rvEls.forEach(function (el) { rvObs.observe(el); });
+  } else {
+    rvEls.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Nav: highlight the section in view, and reading progress
+  var navLinks = document.getElementById('navLinks');
+  var links = navLinks.querySelectorAll('a');
+  var spied = document.querySelectorAll('[data-spy]');
+  var progress = document.getElementById('progress');
+  var current = '';
+  function setActive(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) {
+      var on = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('active', on);
+      if (on) {
+        a.setAttribute('aria-current', 'true');
+        var left = a.offsetLeft - (navLinks.clientWidth - a.offsetWidth) / 2;
+        navLinks.scrollTo({ left: left, behavior: 'smooth' });
+      } else {
+        a.removeAttribute('aria-current');
+      }
+    });
+  }
+  // Every visit starts at the top: no restored scroll position, no leftover #section in the URL
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (location.hash) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // In-page links scroll without writing the section into the URL, so a copied or reloaded link opens at the top
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var target = document.getElementById(a.getAttribute('href').slice(1));
+    if (!target) return;
+    e.preventDefault();
+    var top = target.getBoundingClientRect().top + window.scrollY - 56;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+    // Some viewers drop or stall smooth scrolling; if it has stopped short, jump the rest
+    setTimeout(function () {
+      var y = window.scrollY;
+      setTimeout(function () { if (window.scrollY === y && Math.abs(window.scrollY - top) > 10) window.scrollTo({ top: top, behavior: 'instant' }); }, 120);
+    }, 600);
+  });
+
+  function onScroll() {
+    // Cap the line so a page shown at full height (no inner scrolling) still reads as "at the top"
+    var line = Math.min(window.innerHeight, 900) * 0.35;
+    var id = spied[0].id;
+    spied.forEach(function (s) { if (s.getBoundingClientRect().top <= line) id = s.id; });
+    var scrollable = document.documentElement.scrollHeight - window.innerHeight > 40;
+    if (scrollable && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) id = spied[spied.length - 1].id;
+    setActive(id);
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  // Thinking: folded by default, opens in place (also from the nav tab)
+  var thinkBtn = document.getElementById('thinkBtn');
+  var thinkMore = document.getElementById('thinkMore');
+  var thinkLabel = document.getElementById('thinkLabel');
+  function setThink(open) {
+    thinkMore.hidden = !open;
+    thinkBtn.setAttribute('aria-expanded', String(open));
+    thinkLabel.firstChild.textContent = open ? 'Close ' : 'Open ';
+  }
+  thinkBtn.addEventListener('click', function () { setThink(thinkMore.hidden); });
+  navLinks.querySelector('a[href="#thinking"]').addEventListener('click', function () { setThink(true); });
+
+  // Market 2x2
+  var quadDetail = {
+    dl: ['Delhivery B2C app', 'a live map promises precision, but it sits on a vague text address. This is the one box where the two don’t match. The business app and Delhivery One aren’t in this box.'],
+    qc: ['Blinkit, Zepto', 'every drop is pinned, so the live map is accurate. It works because the precision is captured up front.'],
+    ec: ['Amazon, D2C', 'multi-day delivery doesn’t promise a live dot, so a text address is enough.'],
+    none: ['Nobody', 'real-time delivery without a live map. Almost nobody chooses it.']
+  };
+  var qcells = document.querySelectorAll('.qcell');
+  var qdetail = document.getElementById('qdetail');
+  function pickQuad(id) {
+    qcells.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.q === id)); });
+    qdetail.innerHTML = '';
+    var strong = document.createElement('strong');
+    strong.textContent = quadDetail[id][0] + ': ';
+    qdetail.append(strong, quadDetail[id][1]);
+  }
+  qcells.forEach(function (b) { b.addEventListener('click', function () { pickQuad(b.dataset.q); }); });
+  pickQuad('dl');
+
+  // App screens, redrawn on the Delhivery app's layout. Static markup only, no user input.
+  function scr(title, body) {
+    return '<div class="screen"><div class="sb"><span>9:41</span><span>●●● 5G</span></div><div class="bar"><span class="back">←</span>' + title + '</div><div class="body">' + body + '</div></div>';
+  }
+  var addr = '<div class="ac"><div class="row"><span><span class="dot-s" style="background:#6A9A4A"></span><b>Pickup</b></span><span class="mut">Change</span></div><span class="mut">Flat 2A, MG Road · 452001</span></div>' +
+             '<div class="ac"><div class="row"><span><span class="dot-s" style="background:var(--app-red)"></span><b>Drop</b></span><span class="mut">Change</span></div><span class="mut">Flat 4B, Green Park Rd · 452010</span></div>';
+  var p1 = [
+    {
+      today: scr('Send a parcel', addr +
+        '<div class="ac"><span class="lab">PACKAGE DETAILS</span><div class="row"><b>Package</b><span class="mut">5 kg</span></div><span class="mut">One package per order</span></div>' +
+        '<div class="callout r">Got 3 boxes? Book this order 3 times, and type the addresses again each time.</div>' +
+        '<div class="cta-app">Proceed to pay</div>'),
+      after: scr('Send a parcel', addr +
+        '<div class="group"><div class="gh"><span class="lab" style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--app-muted)">PACKAGES · 1 SHIPMENT</span><b>3 boxes · 10 kg</b></div>' +
+        '<div class="kid-row"><b>Books</b><span class="mut">2 kg</span></div><div class="kid-row"><b>Kitchen</b><span class="mut">5 kg</span></div><div class="kid-row"><b>Clothes</b><span class="mut">3 kg</span></div>' +
+        '<div class="kid-row" style="color:var(--app-red);font-weight:700">+ Add another box</div></div>' +
+        '<div class="cta-app">Proceed to pay · 1 order</div>'),
+      noteT: 'One package per order. Three boxes means three bookings.',
+      noteA: 'Same screen. “Add another box” turns one order into a named, linked set.'
+    },
+    {
+      today: scr('My shipments',
+        '<div class="ac"><div class="row"><b>AWB …4471</b><span class="pill r">Tue</span></div><span class="mut">In transit · Indore hub</span></div>' +
+        '<div class="ac"><div class="row"><b>AWB …4472</b><span class="pill r">Thu</span></div><span class="mut">Picked up</span></div>' +
+        '<div class="ac"><div class="row"><b>AWB …4473</b><span class="pill r">Fri</span></div><span class="mut">Picked up</span></div>' +
+        '<div class="callout r" style="margin-top:auto">Three unrelated cards. Which one is the kitchen box? You can\'t tell.</div>'),
+      after: scr('My shipments',
+        '<div class="group"><div class="gh"><div class="row" style="display:flex;justify-content:space-between"><b>AWB …4470</b><span class="pill g">Today</span></div><span style="color:var(--app-muted);font-size:11px">Out for delivery · 3 boxes · 1 visit</span></div>' +
+        '<div class="kid-row"><b>Books</b><span class="pill g">On van</span></div><div class="kid-row"><b>Kitchen</b><span class="pill g">On van</span></div><div class="kid-row"><b>Clothes</b><span class="pill g">On van</span></div></div>' +
+        '<div class="callout g">If a box is ever held, it shows here with the reason, and the rest still arrive.</div>' +
+        '<div class="callout g" style="margin-top:auto">1 OTP for the whole shipment.</div>'),
+      noteT: '3 separate cards, 3 dates, 3 OTPs.',
+      noteA: 'One card, boxes nested inside, one date.'
+    }
+  ];
+  var form = '<div class="field">House / flat<br><b>Flat 4B</b></div><div class="field">Street, area<br><b>Green Park Rd</b></div><div class="field">Pin code<br><b>452010</b></div>';
+  var p2 = [
+    {
+      today: scr('Add drop address', form + '<div class="field">Landmark (optional)</div>' +
+        '<div class="callout r">No map, no pin. Coordinates are guessed from this text later.</div><div class="cta-app">Save address</div>'),
+      after: scr('Add drop address', '<div class="field">Flat 4B, Green Park Rd · <b>452010</b></div>' +
+        '<div class="map" style="height:230px"><i class="road-h" style="top:90px"></i><i class="road-v" style="left:120px"></i><i class="boundary" style="left:14px;top:14px;right:14px;bottom:14px"></i><i style="left:24px;top:22px;font-size:10px;font-weight:700;color:var(--green-text)">Pin code 452010</i><i class="pin" style="left:150px;top:128px"></i></div>' +
+        '<div style="font-size:11px;color:var(--app-muted)">Drag the pin onto your door.</div><div class="cta-app">Confirm pin</div>'),
+      noteT: 'Text fields only.',
+      noteA: 'Same form, plus a map that opens inside your pin code.'
+    },
+    {
+      today: scr('Address saved', '<div class="ac"><span class="lab">DROP</span><b>Flat 4B, Green Park Rd</b><span class="mut">452010</span></div>' +
+        '<div class="callout r">No check. If the text is vague, nobody finds out until the rider is lost.</div><div class="cta-app">Continue</div>'),
+      after: scr('Is this your door?', '<div class="map" style="height:200px"><i class="road-h" style="top:80px"></i><i class="me-ring" style="left:56px;top:108px"></i><i class="me" style="left:82px;top:134px"></i><i class="pin" style="left:168px;top:34px"></i><i style="left:100px;top:96px;font-size:10px;font-weight:700;color:var(--blue)">72m</i></div>' +
+        '<div style="font-size:12px;line-height:1.5">Your pin is <b>72m</b> from where you are now. That\'s fine if it\'s right; the rider goes where you pin.</div>' +
+        '<div class="cta-app" style="margin-top:auto">Yes, this is my door</div><div class="cta-app ghost">Move pin</div>'),
+      noteT: 'Saved as typed. Nothing is checked.',
+      noteA: 'Pin code first, then your live location. Beyond 50m, you confirm.'
+    },
+    {
+      today: scr('Send a parcel', addr + '<div class="callout r">The sender has to type an address they may not know exactly. The guess goes straight to the rider.</div><div class="cta-app">Proceed to pay</div>'),
+      after: scr('WhatsApp · Delhivery', '<div class="ac" style="font-size:12px;line-height:1.5">A parcel from Modit is on its way to you. <b>Pin your door</b> so the rider finds you on the first try.<span class="mut" style="margin-top:6px">Link expires in 3 days</span></div>' +
+        '<div class="map" style="height:150px"><i class="road-h" style="top:64px"></i><i class="pin" style="left:110px;top:90px"></i></div>' +
+        '<div class="callout a">Only when the sender doesn\'t know the drop. The same two checks run on this pin.</div><div class="cta-app">Pin my door</div>'),
+      noteT: 'The sender guesses.',
+      noteA: 'The receiver pins it from a WhatsApp link.'
+    },
+    {
+      today: scr('Track AWB …4472', '<div class="map" style="height:230px"><i class="road-h" style="top:120px"></i><i class="road-v" style="left:60px"></i><i class="house" style="left:180px;top:40px"></i><i style="left:166px;top:62px;font-size:10px;font-weight:700">your door</i><i class="pin" style="left:52px;top:170px"></i><i style="left:76px;top:172px;font-size:10px;font-weight:700;color:var(--app-red)">map says here</i></div>' +
+        '<div class="ac"><div class="row"><b>Out for delivery</b><span class="pill r">3 calls</span></div><span class="mut">Rider is calling you for directions</span></div>'),
+      after: scr('Rider app · next stop', '<div class="ac"><b>Flat 4B, Green Park Rd</b><span class="mut">3 boxes · AWB …4470</span></div>' +
+        '<div class="map" style="height:180px"><i style="left:20px;top:140px;width:160px;height:6px;background:var(--app-ink);border-radius:3px"></i><i style="left:176px;top:44px;width:6px;height:102px;background:var(--app-ink);border-radius:3px"></i><i class="pin" style="left:168px;top:30px"></i></div>' +
+        '<div class="callout a"><b>Medium confidence.</b> Customer confirmed this pin 72m from their live location. Trust the pin.</div><div class="cta-app">Navigate to pin</div>'),
+      noteT: 'The customer sees a wrong dot. The rider calls.',
+      noteA: 'The rider goes to the confirmed pin, and knows how sure it is.'
+    }
+  ];
+  function phonePair(target, item) {
+    target.innerHTML =
+      '<div class="phone-col"><span class="phone-cap t">TODAY</span><div class="phone" aria-label="Today\'s app screen">' + item.today + '</div><p class="phone-note">' + item.noteT + '</p></div>' +
+      '<div class="phone-col"><span class="phone-cap a">WITH MY FIX</span><div class="phone" aria-label="App screen with the fix">' + item.after + '</div><p class="phone-note">' + item.noteA + '</p></div>';
+  }
+  function wireTabs(tabsId, phonesId, data) {
+    var tabs = document.querySelectorAll('#' + tabsId + ' button');
+    var target = document.getElementById(phonesId);
+    tabs.forEach(function (b) {
+      b.addEventListener('click', function () {
+        tabs.forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+        phonePair(target, data[Number(b.dataset.i)]);
+      });
+    });
+    phonePair(target, data[0]);
+  }
+  wireTabs('p1tabs', 'p1phones', p1);
+  wireTabs('p2tabs', 'p2phones', p2);
+
+  // The algorithm: each pin lights up its path
+  var scenarios = [
+    { label: 'Pin on the door', x: '50%', y: '62%', loc: true, path: ['start', 'l0', 'd1', 'y1', 'd2', 'y2', 'd3', 'y3', 'r4', 'l4', 'end'], result: '<b>18m from the user.</b> Inside the pin code and within 50m, so it’s accepted with no extra step. High confidence.' },
+    { label: 'Pin 72m away', x: '72%', y: '30%', loc: true, path: ['start', 'l0', 'd1', 'y1', 'd2', 'y2', 'd3', 'n3', 'r3', 'end'], result: '<b>72m from the user.</b> Inside the pin code but beyond 50m, so the app asks “Is this your door?”. The user confirms. Medium confidence.' },
+    { label: 'Location access denied', x: '64%', y: '42%', loc: false, path: ['start', 'l0', 'd1', 'y1', 'd2', 'n2', 'r2', 'end'], result: '<b>No live location.</b> Check 2 can’t compare, so the user confirms the door by hand. Low confidence; the rider calls ahead.' },
+    { label: 'Pin at the sender’s home', x: '8%', y: '92%', loc: true, path: ['start', 'l0', 'd1', 'n1', 'r1'], result: '<b>Outside the pin code.</b> The most common mistake, pinning your own location. Stopped at check 1 and sent back to re-pin. Nothing stored.' }
+  ];
+  var algoNodes = document.querySelectorAll('#algo [data-n]');
+  var scenWrap = document.getElementById('scen');
+  var cpin = document.getElementById('cpin');
+  var coreMap = document.getElementById('coreMap');
+  var resultEl = document.getElementById('result');
+  function pickScen(i) {
+    var s = scenarios[i];
+    scenWrap.querySelectorAll('button').forEach(function (b, j) { b.setAttribute('aria-pressed', String(i === j)); });
+    cpin.style.left = s.x; cpin.style.top = s.y;
+    coreMap.classList.toggle('noloc', !s.loc);
+    algoNodes.forEach(function (n) {
+      var idx = s.path.indexOf(n.dataset.n);
+      n.style.transitionDelay = idx < 0 ? '0s' : (idx * 0.07) + 's';
+      n.classList.toggle('on', idx >= 0);
+    });
+    resultEl.innerHTML = s.result;
+  }
+  scenarios.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = s.label;
+    b.addEventListener('click', function () { pickScen(i); });
+    scenWrap.appendChild(b);
+  });
+  pickScen(1);
+
+  // Outcome: rider time lost + cost vs return
+  function fmt(n) { return n >= 100000 ? '₹' + (n / 100000).toFixed(2).replace(/\.?0+$/, '') + 'L' : '₹' + Math.round(n / 1000) + 'k'; }
+  var inc = document.getElementById('incidents');
+  function calc() {
+    var i = Number(inc.value);
+    var detour = 20 * i * (20 / 60) * 100 * 25;
+    var loss = detour + 25000;
+    var save = loss * 0.7 * 10;
+    var payback = 900000 / (save - 105000);
+    var hours = 20 * i * 20 / 60;
+    document.getElementById('incOut').textContent = i;
+    document.getElementById('lostBar').style.width = (hours / 160 * 100) + '%';
+    document.getElementById('lostPct').textContent = Math.round(hours / 160 * 100) + '%';
+    document.getElementById('lostDay').textContent = Math.round(hours) + ' hrs';
+    document.getElementById('lostShifts').textContent = (hours / 8).toFixed(1);
+    document.getElementById('lostMonth').textContent = Math.round(hours * 25) + ' hrs';
+    document.getElementById('tLoss').textContent = fmt(loss);
+    document.getElementById('tLossNote').textContent = 'Detours ' + fmt(detour) + ' + split deliveries ₹25k';
+    document.getElementById('tSave').textContent = fmt(save);
+    document.getElementById('tPay').textContent = payback.toFixed(1) + ' months';
+  }
+  inc.addEventListener('input', calc);
+  calc();
+
+  // Copy email
+  var copyBtn = document.getElementById('copyEmail');
+  copyBtn.addEventListener('click', function () {
+    var email = document.getElementById('email');
+    function selectIt() { var r = document.createRange(); r.selectNodeContents(email); var s = getSelection(); s.removeAllRanges(); s.addRange(r); copyBtn.textContent = 'Press ⌘C / Ctrl+C'; }
+    try {
+      navigator.clipboard.writeText('modit2304@gmail.com').then(function () { copyBtn.textContent = 'Copied'; setTimeout(function () { copyBtn.textContent = 'Copy email'; }, 2000); }, selectIt);
+    } catch (e) { selectIt(); }
+  });
+
+  // Rolling feedback
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbxUDoIpEmbNainCUinit1ITgIuoPfACxEFA32ISygffJzRXg6roRYydFjEeKdqsCrnAiA/exec';
+  var questions = [
+    { id: 'clarity', tag: 'Clarity', q: 'Was the problem clear, or did it feel vague?', o: ['Crystal clear', 'Got the gist', 'Felt vague'] },
+    { id: 'numbers', tag: 'Numbers', q: 'Did the numbers make sense?', o: ['Convincing', 'Plausible, needs real data', 'Didn’t add up'] },
+    { id: 'solution', tag: 'Solution', q: 'Does the fix solve the right problem?', o: ['Spot on', 'Right direction, needs work', 'Misses the point'] },
+    { id: 'tech', tag: 'Tech', q: 'Is the tech approach realistic to build?', o: ['Feasible as is', 'Some gaps', 'Unrealistic'] },
+    { id: 'talk', tag: 'Conversation', q: 'Is this enough to start a conversation?', o: ['Yes, let’s talk', 'Maybe, with more depth', 'Not yet'] }
+  ];
+  var answers = {}, step = 0, note = '';
+  var body = document.getElementById('fbBody');
+  var bars = document.querySelectorAll('#bars i');
+  var count = document.getElementById('fbCount');
+  var back = document.getElementById('fbBack');
+
+  function submitUrl() {
+    var params = questions.map(function (q) { return q.id + '=' + encodeURIComponent(answers[q.id] || ''); });
+    params.push('note=' + encodeURIComponent(note.slice(0, 1000)));
+    return ENDPOINT + '?' + params.join('&');
+  }
+
+  function render() {
+    bars.forEach(function (b, i) { b.className = answers[questions[i].id] ? 'done' : (i === step ? 'now' : ''); });
+    count.textContent = step < 5 ? 'Question ' + (step + 1) + ' of 5' : 'All 5 answered';
+    back.hidden = step === 0;
+    body.innerHTML = '';
+    var slide = document.createElement('div');
+    slide.className = 'stack fb-slide';
+
+    if (step < 5) {
+      var q = questions[step];
+      var k = document.createElement('div'); k.className = 'k'; k.textContent = '0' + (step + 1) + ' · ' + q.tag.toUpperCase();
+      var h = document.createElement('div'); h.className = 'q'; h.id = 'fbq'; h.textContent = q.q;
+      var opts = document.createElement('div'); opts.className = 'opts'; opts.setAttribute('role', 'group'); opts.setAttribute('aria-labelledby', 'fbq');
+      q.o.forEach(function (label) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = label;
+        b.setAttribute('aria-pressed', String(answers[q.id] === label));
+        b.addEventListener('click', function () { answers[q.id] = label; step += 1; render(); focusFirst(); });
+        opts.appendChild(b);
+      });
+      slide.append(k, h, opts);
+    } else {
+      var t = document.createElement('div'); t.className = 'q'; t.textContent = 'Thank you. Here’s what you told me:';
+      var sum = document.createElement('div'); sum.className = 'summary';
+      questions.forEach(function (q) {
+        var s = document.createElement('span'); var b = document.createElement('b');
+        b.textContent = q.tag; s.append(b, ' · ' + (answers[q.id] || '—')); sum.appendChild(s);
+      });
+      var lab = document.createElement('label'); lab.htmlFor = 'fbNote'; lab.style.fontWeight = '700';
+      lab.innerHTML = 'Anything I got wrong? <span style="font-weight:400;color:var(--muted)">(optional)</span>';
+      var ta = document.createElement('textarea'); ta.id = 'fbNote'; ta.rows = 3; ta.placeholder = 'One line is plenty.'; ta.value = note; ta.maxLength = 1000;
+      ta.addEventListener('input', function () { note = ta.value; });
+      var actions = document.createElement('div'); actions.className = 'fb-actions';
+      var send = document.createElement('button'); send.type = 'button'; send.className = 'btn-dark'; send.textContent = 'Submit feedback';
+      send.addEventListener('click', function () {
+        send.disabled = true; send.textContent = 'Sending…';
+        post(submitUrl()).then(showThanks, function () { showFallback(actions); });
+      });
+      actions.append(send);
+      slide.append(t, sum, lab, ta, actions);
+    }
+    body.appendChild(slide);
+  }
+
+  // Send in the background so the reader stays on the page. The response is opaque; reaching the
+  // script is enough. If the page's network rules block it, fall back to a link that opens it.
+  function post(url) {
+    try { return fetch(url, { mode: 'no-cors', cache: 'no-store' }); } catch (e) { return Promise.reject(e); }
+  }
+  function showThanks() {
+    bars.forEach(function (b) { b.className = 'done'; });
+    count.textContent = 'Sent';
+    back.hidden = true;
+    body.innerHTML = '';
+    var slide = document.createElement('div'); slide.className = 'stack fb-slide';
+    var t = document.createElement('div'); t.className = 'q'; t.textContent = 'Saved. Thank you for being honest.';
+    var p = document.createElement('p'); p.style.color = 'var(--ink-2)'; p.textContent = 'If it landed, I’d love the 15 minutes. My email is just above.';
+    slide.append(t, p);
+    body.appendChild(slide);
+  }
+  function showFallback(actions) {
+    actions.innerHTML = '';
+    var a = document.createElement('a'); a.className = 'btn-dark'; a.target = '_blank'; a.rel = 'noopener'; a.href = submitUrl(); a.textContent = 'Send feedback';
+    a.addEventListener('click', function () { setTimeout(showThanks, 400); });
+    var hint = document.createElement('span'); hint.style.fontSize = '13px'; hint.style.color = 'var(--muted)';
+    hint.textContent = 'This viewer blocked the quiet send, so this opens a confirmation tab you can close.';
+    actions.append(a, hint);
+  }
+  function focusFirst() { var f = body.querySelector('button, textarea'); if (f) f.focus({ preventScroll: true }); }
+  back.addEventListener('click', function () { step = Math.max(0, step - 1); render(); focusFirst(); });
+  render();
+})();
+</script>
+
+</body>
+</html>
